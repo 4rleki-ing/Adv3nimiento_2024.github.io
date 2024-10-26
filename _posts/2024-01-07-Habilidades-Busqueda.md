@@ -116,3 +116,90 @@ La siguiente captura de pantalla muestra el resultado de comparar el archivo env
 ### Responde las preguntas a continuación
 - ¿Cuál es el principal país con servidores lighttpd ? `United States`
 - ¿Qué detecta BitDefenderFalx con el hash  `2de70ca737c1f4602517c555ddd54165432cf231ffc0e21fb2e23b9dd14e7fb4`?  `Android.Riskware.Agent.LHH`
+
+## Vulnerabilidades y exploits
+### CVE
+Podemos pensar en el programa Common Vulnerabilities and Exposures ( CVE ) como un diccionario de vulnerabilidades. Proporciona un identificador estandarizado para vulnerabilidades y problemas de seguridad en productos de software y hardware. A cada vulnerabilidad se le asigna un CVE con un formato estandarizado como ID `CVE-2024-29988`. Este identificador único (CVE ID) garantiza que todos, desde investigadores de seguridad hasta proveedores y profesionales de TI, se refieran a la misma vulnerabilidad, [CVE -2024-29988](https://nvd.nist.gov/vuln/detail/CVE-2024-29988) en este caso.
+
+La Corporación MITRE mantiene el sistema CVE. Para obtener más información y buscar CVE existentes, visite el [sitio web](https://www.cve.org/) del programa CVE. Alternativamente, visite el [sitio web]((https://nvd.nist.gov/)) de la Base de datos nacional de vulnerabilidad (NVD). La siguiente captura de pantalla muestra CVE -2014-0160, también conocido como Heartbleed. 
+
+<div align="center">
+  <img src="/assets/images/Habilidades-Busqueda/CVE.png">
+</div>
+
+### Explotar base de datos
+
+Hay muchas razones por las que querrías explotar una aplicación vulnerable; uno estaría evaluando la seguridad de una empresa como parte de su equipo rojo. No hace falta decir que no deberíamos intentar explotar un sistema vulnerable a menos que se nos dé permiso, generalmente mediante un acuerdo legalmente vinculante.
+
+Ahora que tenemos permiso para explotar un sistema vulnerable, es posible que necesitemos encontrar un código de explotación que funcione. Un recurso es la [base de datos de explotación](https://www.exploit-db.com/). La base de datos de exploits enumera códigos de exploits de varios autores; Algunos de estos códigos de explotación se prueban y se marcan como verificados. 
+
+<div align="center">
+  <img src="/assets/images/Habilidades-Busqueda/Exploit.png">
+</div>
+
+[GitHub](https://github.com/), una plataforma web para el desarrollo de software, puede contener muchas herramientas relacionadas con CVE, junto con códigos de prueba de concepto (PoC) y de explotación. Para demostrar esta idea, consulte la captura de pantalla siguiente de los resultados de búsqueda en GitHub relacionados con la vulnerabilidad Heartbleed. 
+
+<div align="center">
+  <img src="/assets/images/Habilidades-Busqueda/Github.png">
+</div>
+
+### Responde las preguntas a continuación
+¿A qué utilidad se refiere CVE-2024-3094? `xz`
+
+## Documentación técnica
+Una habilidad vital que se debe adquirir es buscar documentación oficial. Cubriremos algunos ejemplos de páginas de documentación oficial.
+
+### Páginas del manual de Linux
+Mucho antes de que Internet estuviera en todas partes, ¿cómo obtendría ayuda para utilizar un comando en un sistema tipo Linux o Unix? La respuesta sería consultar la página del manual, para abreviar la página de manual. En Linux y en todos los sistemas tipo Unix, se espera que cada comando tenga una página de manual. De hecho, también existen páginas de manual para llamadas al sistema, funciones de biblioteca e incluso archivos de configuración.
+
+Digamos que queremos consultar la página del manual para el comando `ip`. Emitimos el comando `man ip`. La siguiente captura de pantalla muestra la página que recibimos. Es posible que desee iniciar AttackBox y ejecutar `man ip` en la terminal. Prensa `q` para dejar de leer.
+
+<div align="center">
+  <img src="/assets/images/Habilidades-Busqueda/ip.png">
+</div>
+
+Si prefieres leer la página de manual de `ip` en su navegador web, simplemente escriba `man ip` en tu buscador favorito. Esta [página](https://linux.die.net/man/8/ip) puede estar en la parte superior de los resultados.
+
+AttackBox accesible es un sistema Linux desde su navegador. Al hacer clic en el botón Iniciar AttackBox se mostrará AttackBox en una pantalla dividida, lo que hace que sea conveniente leer el texto de la tarea y aplicar las instrucciones dentro de la misma ventana del navegador. Si oculta la ventana de AttackBox, puede volver a mostrarla haciendo clic en el botón azul Mostrar vista dividida en la parte superior. En esta tarea, puede iniciar AttackBox y usarlo para probar comandos de Linux como `man`.
+
+### Windows
+Microsoft proporciona una [página](https://learn.microsoft.com/en-us/) de documentación técnica oficial para sus productos. La siguiente captura de pantalla muestra los resultados de la búsqueda del comando `ipconfig`.
+
+<div align="center">
+  <img src="/assets/images/Habilidades-Busqueda/Windows.png">
+</div>
+
+### Documentación del producto
+Se espera que cada producto popular tenga documentación bien organizada. Esta documentación proporciona una fuente oficial y confiable de información sobre las características y funciones del producto. Los ejemplos incluyen la [documentación oficial de Snort](https://www.snort.org/documents), [Apache HTTP la documentación del servidor](https://httpd.apache.org/docs/), [de PHP la documentación](https://www.php.net/manual/en/index.php) y [la documentación de Node.js](https://nodejs.org/docs/latest/api/).
+
+Siempre es gratificante consultar la documentación oficial, ya que es la más actualizada y ofrece la información más completa del producto.
+
+### Responde las preguntas a continuación
+- ¿Qué descripción manda el comando `cat` en Linux? `concatenate`
+- ¿Con `netstat` cuál es el parámetro en MS Windows que muestra el ejecutable asociado con cada conexión activa y puerto de escucha? `-b`
+
+## Redes Sociales
+
+<div align="center">
+  <img src="/assets/images/Habilidades-Busqueda/Red.svg">
+</div>
+
+Hay miles de millones de usuarios registrados en plataformas de redes sociales como [Facebook](https://www.facebook.com/people/Tryhackme/100069557747714/), [Twitter](https://x.com/RealTryHackMe) y [LinkedIn](https://www.linkedin.com/company/tryhackme/). Esperamos que esté familiarizado con las plataformas populares. Sin embargo, si conoce alguna plataforma con la que no está familiarizado, le recomendamos que la consulte y conozca más sobre ella. Idealmente, uno querría explorar una plataforma sin crear una cuenta; sin embargo, esto limita gravemente su experiencia. En cambio, una recomendación es utilizar una dirección de correo electrónico temporal para descubrir estas plataformas sin vincularlas a sus direcciones de correo electrónico reales; Una vez hecho esto, puede cancelar las cuentas y las direcciones de correo electrónico asociadas. Una razón para no usar tu cuenta principal es que no quieres que tus contactos comiencen a conectarse contigo allí cuando solo estás explorando una plataforma temporalmente.
+
+El poder de las redes sociales es que le permiten conectarse con empresas y personas que le interesan. Además, las redes sociales ofrecen una gran cantidad de información para los profesionales de la seguridad cibernética, ya sea que estén buscando personas o información técnica. ¿Por qué es importante buscar personas?
+
+Al proteger una empresa, debe asegurarse de que las personas que protege no compartan demasiado en las redes sociales. Por ejemplo, sus redes sociales podrían revelar la respuesta a sus preguntas secretas, como "¿A qué escuela fuiste cuando eras niño?". Esta información podría permitir a los adversarios restablecer sus contraseñas y hacerse cargo de sus cuentas sin esfuerzo.
+
+Además, como profesional de la seguridad cibernética, desea mantenerse actualizado con las nuevas tendencias, tecnologías y productos de seguridad cibernética. Seguir los canales y grupos adecuados puede proporcionar un entorno adecuado para aumentar su experiencia técnica.
+
+Además de mantenernos actualizados a través de canales y grupos de redes sociales, debemos mencionar los medios de comunicación. Cientos de sitios web de noticias ofrecerían valiosas noticias relacionadas con la ciberseguridad. Prueba diferentes y quédate con los que más te gusten.
+
+### Responde las preguntas a continuación
+- Lo contratan para evaluar la seguridad de una empresa en particular. ¿Qué es un sitio web popular de redes sociales que usaría para aprender sobre los aspectos técnicos antecedentes de uno de sus empleados? `LinkedIn`
+- Continuando con el escenario anterior, estás intentando encontrar la respuesta a la pregunta secreta: “¿A qué escuela fuiste cuando eras niño?”. Qué sitio web de redes sociales, ¿consideraría consultar para encontrar la respuesta? ¿Preguntas tan secretas? `Facebook`
+
+## Conclusión
+Esta sala se centró en las fuentes de información más habituales para los profesionales de la ciberseguridad. Hay muchos más. A medida que el panorama de la información sigue cambiando, es imposible abarcar todas las fuentes. Sin embargo, al suscribirse a grupos de seguridad cibernética relevantes, uno puede mantenerse a la vanguardia y estar al tanto siempre que surjan nuevas fuentes interesantes.
+
+### Responde las preguntas a continuación
+- Asegúrese de haber tomado nota de los distintos motores de búsqueda y recursos mencionados. en esta sala, ya que serán convenientes en cualquier camino de seguridad cibernética que seguir. 
