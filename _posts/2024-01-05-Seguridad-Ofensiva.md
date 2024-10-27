@@ -2,7 +2,7 @@
 layout: single
 title: Introducción a la Seguridad Ofensiva
 excerpt: "Hackea tu primer sitio web (legalmente en un entorno seguro) y experimenta el trabajo de un hacker ético."
-date: 2024-10-17
+date: 2024-10-18
 classes: wide
 header:
   teaser: /assets/images/Seguridad-Ofensiva/Logo.jpeg

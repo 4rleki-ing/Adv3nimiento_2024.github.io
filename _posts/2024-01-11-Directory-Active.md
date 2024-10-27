@@ -2,7 +2,7 @@
 layout: single
 title: Conceptos básicos de Directorio Activo
 excerpt: "Esta sala presentará los conceptos básicos y la funcionalidad proporcionada por Active Directory."
-date: 2024-10-11
+date: 2024-10-12
 classes: wide
 header:
   teaser: /assets/images/
@@ -267,3 +267,290 @@ De forma predeterminada, todas las máquinas que se unen a un dominio (excepto l
   <img src="/assets/images/Active-Directory/Computers.png">
 </div>
 
+Podemos ver algunos servidores, algunos portátiles y algunos PC correspondientes a los usuarios de nuestra red. Tener todos nuestros dispositivos ahí no es la mejor idea ya que es muy probable que quieras políticas diferentes para tus servidores y las máquinas que los usuarios habituales utilizan a diario.
+
+Si bien no existe una regla de oro sobre cómo organizar sus máquinas, un excelente punto de partida es segregar los dispositivos según su uso. En general, esperaría ver dispositivos divididos en al menos las tres categorías siguientes:
+
+1. `Estaciones de trabajo`. Las estaciones de trabajo son uno de los dispositivos más comunes dentro de un dominio de Active Directory. Es probable que cada usuario del dominio inicie sesión en una estación de trabajo. Este es el dispositivo que utilizarán para realizar su trabajo o actividades normales de navegación. Estos dispositivos nunca deberían tener un usuario privilegiado que haya iniciado sesión.
+
+2. `Servidores`. Los servidores son el segundo dispositivo más común dentro de un dominio de Active Directory. Los servidores se utilizan generalmente para proporcionar servicios a los usuarios u otros servidores.
+
+3. `Controladores de dominio`. Los controladores de dominio son el tercer dispositivo más común dentro de un dominio de Active Directory. Los controladores de dominio le permiten administrar el dominio de Active Directory. Estos dispositivos a menudo se consideran los más sensibles dentro de la red, ya que contienen contraseñas hash para todas las cuentas de usuario dentro del entorno.
+
+Ya que estamos ordenando nuestro AD, creemos dos unidades organizativas separadas para `Workstations` y `Servers` (Los controladores de dominio ya están en una unidad organizativa creada por Windows). Los crearemos directamente bajo el contenedor de dominio `thm.local`. Al final, deberías tener la siguiente estructura OU:
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Estructura.png">
+</div>
+
+Ahora, mueva las computadoras personales y portátiles a la OU Servidores Estaciones de trabajo y los servidores a la OU desde el contenedor Computadoras. Hacerlo nos permitirá configurar políticas para cada OU más adelante.
+
+### Responde las preguntas a continuación
+- Después de organizar las computadoras disponibles, ¿cuántas terminaron en la unidad organizativa Estaciones de trabajo? `7`
+- ¿Es recomendable crear unidades organizativas separadas para servidores y estaciones de trabajo? (sí/no) `Si`
+
+## Políticas de grupo
+Hasta ahora, hemos organizado usuarios y computadoras en unidades organizativas simplemente porque sí, pero la idea principal detrás de esto es poder implementar diferentes políticas para cada unidad organizativa individualmente. De esa manera, podemos ofrecer diferentes configuraciones y líneas base de seguridad a los usuarios según su departamento.
+
+Windows administra dichas políticas a través de `objetos de política de grupo (GPO)`. Los GPO son simplemente una *colección de configuraciones* que se pueden aplicar a las unidades organizativas. Los GPO pueden contener políticas dirigidas a usuarios o computadoras, lo que le permite establecer una línea de base en máquinas e identidades específicas.
+
+Para configurar GPO, puede utilizar la herramienta de **administración de políticas de grupo**, disponible en el menú de inicio:
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Politica.png">
+</div>
+
+Lo primero que verá al abrirlo es su jerarquía OU completa, como se definió anteriormente. Para configurar las políticas de grupo, primero cree un GPO en Objetos de política de grupo y luego vincúlelo a la unidad organizativa donde desea que se apliquen las políticas. Como ejemplo, puede ver que ya existen algunos GPO en su máquina: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/GPO.png">
+</div>
+
+Podemos ver en la imagen de arriba que se han creado `3 GPO`. De esos, el `Default Domain Policy` y `RDP Policy` están vinculados al dominio `thm.local` en su conjunto, y el `Default Domain Controllers Policy` está vinculado a la `Domain Controllers` Sólo unidad organizativa . Algo importante a tener en cuenta es que cualquier GPO se aplicará a la unidad organizativa vinculada y a cualquier subunidad organizativa que se encuentre debajo de ella. Por ejemplo, el `Sales OU` seguirá estando afectada por el `Default Domain Policy`.
+
+Examinemos el `Default Domain Policy` para ver qué hay dentro de un GPO. La primera pestaña que verá al seleccionar un GPO muestra su alcance , que es donde está vinculado el GPO en el AD . Para la política actual, podemos ver que solo se ha vinculado al dominio `thm.local`:
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Scope.png">
+</div>
+
+Como puede ver, también puede aplicar filtrado de seguridad a los GPO para que solo se apliquen a *usuarios/computadoras específicas* bajo una unidad organizativa. De forma predeterminada, se aplicarán al grupo Usuarios autenticados, que incluye a todos los usuarios/PC.
+
+La pestaña **Configuración** incluye el contenido real del GPO y nos permite saber qué configuraciones específicas aplica. Como se indicó anteriormente, cada GPO tiene configuraciones que se aplican solo a computadoras y configuraciones que se aplican solo a usuarios. En este caso, el *Default Domain Policy* solo contiene configuraciones de computadora: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Setting.png">
+</div>
+
+Siéntase libre de explorar el `GPO` y ampliar los elementos disponibles utilizando los enlaces "mostrar" en el lado derecho de cada configuración. En este caso, el *Default Domain Policy* indica configuraciones realmente básicas que deberían aplicarse a la mayoría de los dominios, incluidas las políticas de bloqueo de cuentas y contraseñas: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Config.png">
+</div>
+
+Dado que este GPO se aplica a todo el dominio, cualquier cambio afectaría a todas las computadoras. Cambiemos la política de longitud mínima de contraseña para exigir que los usuarios tengan al menos 10 caracteres en sus contraseñas. Para hacer esto, haga clic derecho en el GPO y seleccione `Editar`:
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Edit.png">
+</div>
+
+Esto abrirá una nueva ventana donde podremos navegar y editar todas las configuraciones disponibles. Para cambiar la longitud mínima de la contraseña, vaya a `Computer Configurations -> Policies -> Windows Setting -> Security Settings -> Account Policies -> Password Policy` y cambie el valor de política requerido:
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Politica-Pass.png">
+</div>
+
+Como puedes ver, en una GPO se pueden establecer multitud de políticas . Si bien explicar cada una de ellas sería imposible en una sola sala, siéntete libre de explorar un poco, ya que algunas de las políticas son sencillas. Si necesita más información sobre alguna de las políticas, puede hacer doble clic en ellas y leer la pestaña Explicar de cada una de ellas: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Explicar.png">
+</div>
+
+### Distribución de GPO
+Los GPO se distribuyen a la red a través de un *recurso compartido* de red llamado `SYSVOL`, que se almacena en el `DC`. Normalmente, todos los usuarios de un dominio deberían tener acceso a este recurso compartido a través de la red para sincronizar sus GPO periódicamente. El recurso compartido SYSVOL apunta por defecto al `C:\Windows\SYSVOL\sysvol\` directorio en cada uno de los DC de nuestra red.
+
+Una vez que se ha realizado un cambio en cualquier GPO, las computadoras pueden tardar hasta 2 horas en ponerse al día. Si desea forzar a una computadora en particular a sincronizar sus GPO inmediatamente, siempre puede ejecutar el siguiente comando en la computadora deseada: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Force.png">
+</div>
+
+### Creando algunos GPO para THM Inc.
+Como parte de nuestro nuevo trabajo, se nos ha encomendado la tarea de implementar algunos GPO que nos permitan:
+
+- Bloquee el acceso al Panel de control a usuarios que no sean de TI.
+- Haga que las estaciones de trabajo y los servidores bloqueen su pantalla automáticamente después de 5 minutos de inactividad del usuario para evitar que las personas dejen sus sesiones expuestas.
+
+Centrémonos en cada uno de ellos y definamos qué políticas debemos habilitar en cada GPO y dónde deben vincularse.
+
+1. `Restringir el acceso al panel de control`. Queremos restringir el acceso al Panel de control en todas las máquinas solo a los usuarios que forman parte del departamento de TI. Los usuarios de otros departamentos no deberían poder cambiar las preferencias del sistema.
+
+Creemos un *nuevo GPO* llamado `Restrict Control Panel Access` y ábrelo para editarlo. Como queremos que este GPO se aplique a usuarios específicos, buscaremos en **User Configuration** para la siguiente póliza: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Panel-Control.png">
+</div>
+
+Tenga en cuenta que hemos habilitado la política `Prohibir el acceso al panel de control` y a la `configuración de la PC`.
+
+Una vez configurado el GPO, necesitaremos vincularlo a todas las cuentas OU correspondientes a usuarios que no deberían tener acceso al Panel de Control de sus PC. En este caso vincularemos el Marketing, Management y Sales OU arrastrando el GPO a cada una de ellas: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Restriccion.png">
+</div>
+
+### bloqueo de pantalla automático GPO
+Para el primer GPO, relacionado con el bloqueo de pantalla para estaciones de trabajo y servidores, podríamos aplicarlo directamente sobre `Workstations`, `Servers` y `Domain Controllers OU` que creamos anteriormente.
+
+Si bien esta solución debería funcionar, una alternativa consiste en simplemente `aplicar el GPO al dominio raíz`, ya que queremos que el GPO afecte a todos nuestros ordenadores. Desde el `Workstations`, `Servers` y `Domain Controllers` Todas las unidades organizativas son unidades organizativas secundarias del dominio raíz y heredarán sus políticas.
+
+```cmd
+Nota: 
+
+  Es posible que observe que si nuestro GPO se aplica al dominio raíz, también lo heredarán 
+otras unidades organizativas como Sales o Marketing.
+
+Cualquier configuración de computadora en nuestro GPO . Dado que estas unidades organizativas contienen solo usuarios, ignorarán.
+```
+
+Creemos un nuevo GPO, llámelo `Auto Lock Screeny` edítelo. La política para lograr lo que queremos se ubica en la siguiente ruta: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Auto-Look.png">
+</div>
+
+Estableceremos el *límite de inactividad en 5 minutos* para que los ordenadores se bloqueen automáticamente si algún usuario deja su sesión abierta. Después de cerrar el editor de GPO, vincularemos el GPO al dominio raíz arrastrándolo hacia él : 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Auto-Look-2.png">
+</div>
+
+Una vez que los GPO se hayan aplicado a las unidades organizativas correctas, podemos iniciar sesión como cualquier usuario en Marketing, Ventas o Administración para su verificación. Para esta tarea, conectemos vía RDP usando las credenciales de Mark: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/RDP-MARK.png">
+</div>
+
+**Nota:** Cuando se conecte a través de RDP, utilice `THM\Mark` como nombre de usuario para especificar que desea iniciar sesión utilizando el usuario `Mark` en el dominio `THM`.
+
+Si intentamos abrir el *Panel de control*, deberíamos recibir un mensaje indicando que el administrador rechaza esta operación. También puedes esperar 5 minutos para comprobar si la pantalla se bloquea automáticamente si lo deseas.
+
+Dado que no aplicamos el GPO del panel de control en TI, aún debería poder iniciar sesión en la máquina como cualquiera de esos usuarios y acceder al panel de control.
+
+```cmd
+Nota:
+
+  Si creó y vinculó los GPO, pero por alguna razón todavía no funcionan, recuerde que puede 
+ejecutar gpupdate /force para forzar la actualización de los GPO.
+```
+
+### Responde las preguntas a continuación
+- ¿Cuál es el nombre del recurso compartido de red utilizado para distribuir GPO a máquinas de dominio? `sysvol`
+- ¿Se puede utilizar un GPO para aplicar configuraciones a usuarios y computadoras? (sí/no) `Sí`
+
+## Métodos de autenticación
+Cuando se utilizan dominios de Windows, todas las credenciales se almacenan en los controladores de dominio. Siempre que un usuario intente autenticarse en un servicio utilizando credenciales de dominio, el servicio deberá solicitarle al controlador de dominio que verifique si son correctas. Se pueden utilizar dos protocolos para la autenticación de red en dominios de Windows:
+
+- `Kerberos`: Utilizado por cualquier versión reciente de Windows. Este es el protocolo predeterminado en cualquier dominio reciente.
+- `NetNTLM`: Protocolo de autenticación heredado que se mantiene por motivos de compatibilidad. 
+
+Si bien **NetNTLM** debería considerarse obsoleto, la mayoría de las redes tendrán ambos protocolos habilitados. Echemos un vistazo más profundo a cómo funciona cada uno de estos protocolos.
+
+### Kerberos Autenticación
+Es el protocolo de autenticación predeterminado para cualquier versión reciente de Windows. A los usuarios que inicien sesión en un servicio utilizando Kerberos se les asignarán *tickets*. Piensa en los billetes como prueba de una autenticación previa. Los usuarios con boletos pueden presentarlos a un servicio para demostrar que ya se han autenticado en la red anteriormente y, por lo tanto, están habilitados para usarlo.
+
+1. Cuando se utiliza Kerberos para la autenticación, ocurre el siguiente proceso:
+
+El usuario envía su nombre de usuario y una marca de tiempo cifrada mediante una clave derivada de su contraseña al Centro de distribución de claves (KDC), un servicio normalmente instalado en el controlador de dominio encargado de crear tickets Kerberos en la red.
+
+El KDC creará y devolverá un Boleto de concesión de boletos (TGT), que permitirá al usuario solicitar boletos adicionales para acceder a servicios específicos. La necesidad de un ticket para obtener más tickets puede parecer un poco extraña, pero permite a los usuarios solicitar tickets de servicio sin pasar sus credenciales cada vez que quieran conectarse a un servicio. Junto con el TGT, se le entrega al usuario una clave de sesión , que necesitará para generar las siguientes solicitudes.
+
+Observe que el TGT está cifrado utilizando el hash de contraseña de la cuenta krbtgt y, por lo tanto, el usuario no puede acceder a su contenido. Es esencial saber que el TGT cifrado incluye una copia de la clave de sesión como parte de su contenido, y el KDC no necesita almacenar la clave de sesión, ya que puede recuperar una copia descifrando el TGT si es necesario. 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/TGT.png">
+</div>
+
+2. Cuando un usuario desea conectarse a un servicio en la red, como un recurso compartido, un sitio web o una base de datos, utilizará su TGT para solicitar al KDC un Servicio de concesión de boletos (TGS) . Los TGS son boletos que permiten la conexión únicamente al servicio específico para el que fueron creados. Para solicitar un TGS, el usuario enviará su nombre de usuario y una marca de tiempo encriptada usando la Clave de Sesión, junto con el TGT y un Nombre Principal del Servicio (SPN), que indica el servicio y el nombre del servidor al que pretendemos acceder.
+
+Como resultado, el KDC nos enviará un TGS junto con una clave de sesión de servicio , que necesitaremos para autenticarnos en el servicio al que queremos acceder. El TGS se cifra utilizando una clave derivada del Hash del propietario del servicio . El propietario del servicio es el usuario o la cuenta de máquina bajo la cual se ejecuta el servicio. El TGS contiene una copia de la Clave de sesión del servicio en su contenido cifrado para que el Propietario del servicio pueda acceder a ella descifrando el TGS. 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/TGS.png">
+</div>
+
+3. Luego, el TGS se puede enviar al servicio deseado para autenticar y establecer una conexión. El servicio utilizará el hash de contraseña de su cuenta configurada para descifrar el TGS y validar la clave de sesión del servicio. 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/SRV.png">
+</div>
+
+### Autenticación NetNTLM
+NetNTLM funciona mediante un mecanismo de desafío-respuesta. Todo el proceso es el siguiente: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/NET.png">
+</div>
+
+
+1. El cliente envía una solicitud de autenticación al servidor al que desea acceder.
+2. El servidor genera un número aleatorio y lo envía como desafío al cliente.
+3. El cliente combina su hash de contraseña NTLM con el desafío (y otros datos conocidos) para generar una respuesta al desafío y la envía de regreso al servidor para su verificación.
+4. El servidor envía el desafío y la respuesta al controlador de dominio para su verificación.
+5. El controlador de dominio utiliza el desafío para recalcular la respuesta y la compara con la respuesta original enviada por el cliente. Si ambos coinciden, el cliente queda autenticado; de lo contrario, se deniega el acceso. El resultado de la autenticación se envía de vuelta al servidor.
+6. El servidor envía el resultado de la autenticación al cliente. 
+
+Tenga en cuenta que la contraseña (o hash) del usuario nunca se transmite a través de la red por motivos de seguridad.
+
+```cmd
+Nota: 
+
+  El proceso descrito se aplica cuando se utiliza una cuenta de dominio. Si se utiliza una 
+cuenta local, el servidor puede verificar la respuesta al desafío sin necesidad de interacción 
+con el controlador de dominio, ya que tiene el hash de contraseña almacenado localmente en su SAM.
+```
+
+### Responde las preguntas a continuación
+- ¿La versión actual de Windows utilizará NetNTLM como protocolo de autenticación preferido de forma predeterminada? (sí/no) `nay`
+- En cuanto a Kerberos, ¿qué tipo de ticket nos permite solicitar más tickets conocidos como TGS? `Ticket Granting Ticket`
+- Cuando se utiliza NetNTLM, ¿se transmite la contraseña de un usuario a través de la red en algún momento? (sí/no) `nay`
+
+## Trees, Forests and Trusts
+Hasta ahora, hemos discutido cómo administrar un único dominio, el rol de un Controlador de Dominio y cómo une computadoras, servidores y usuarios. 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/DC-ROOT.png">
+</div>
+
+A medida que las empresas crecen, también lo hacen sus redes. Tener un único dominio para una empresa es suficiente para empezar, pero con el tiempo algunas necesidades adicionales pueden llevarte a tener más de uno.
+
+### Trees
+Imagina, por ejemplo, que de repente tu empresa se expande a un nuevo país. El nuevo país tiene diferentes leyes y regulaciones que requieren que usted actualice sus GPO para cumplirlas. Además, ahora tienes personal de TI en ambos países, y cada equipo de TI necesita gestionar los recursos que corresponden a cada país sin interferir con el otro equipo. Si bien se puede crear una estructura OU compleja y utilizar delegaciones para lograrlo, tener una estructura AD enorme puede ser difícil de administrar y propenso a errores humanos.
+
+Afortunadamente para nosotros, Active Directory admite la integración de múltiples dominios para que pueda dividir su red en unidades que se puedan administrar de forma independiente. Si tiene dos dominios que comparten el mismo espacio de nombres (`thm.local` en nuestro ejemplo), esos dominios se pueden unir en un **Árbol**.
+
+Si nuestro dominio `thm.local` se dividió en dos subdominios para las sucursales del Reino Unido y EE. UU., podría crear un árbol con un dominio raíz de `thm.local` y dos subdominios llamados `uk.thm.local` y `us.thm.local`, cada uno con su AD, computadoras y usuarios: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Sub-AD.png">
+</div>
+
+Esta estructura particionada nos brinda un mejor control sobre quién puede acceder a qué en el dominio. El personal de TI del Reino Unido tendrá su propio DC que gestionará únicamente los recursos del Reino Unido. Por ejemplo, un usuario del Reino Unido no podría gestionar usuarios de EE. UU. De esa manera, los Administradores de Dominio de cada sucursal tendrán control total sobre sus respectivos DC, pero no sobre los DC de otras sucursales. Las políticas también se pueden configurar de forma independiente para cada dominio del árbol.
+
+Es necesario introducir un nuevo grupo de seguridad cuando se habla de árboles y bosques. El grupo de administradores empresariales otorgará a un usuario privilegios administrativos sobre todos los dominios de una empresa. Cada dominio todavía tendría sus administradores de dominio con privilegios de administrador sobre sus dominios individuales y los administradores empresariales que pueden controlar todo en la empresa. 
+
+### Forests
+Los dominios que administra también se pueden configurar en diferentes espacios de nombres. Supongamos que su empresa continúa creciendo y eventualmente adquiere otra empresa llamada `MHT Inc.` Cuando ambas empresas se fusionen, probablemente tendrá árboles de dominio diferentes para cada empresa, cada uno administrado por su propio departamento de TI. A la unión de varios árboles con distintos namespaces en una misma red se le conoce como bosque . 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Bosque-AD.png">
+</div>
+
+### Trust Relationships
+Tener múltiples dominios organizados en árboles y bosques le permite tener una buena red compartimentada en términos de gestión y recursos. Pero, en cierto momento, es posible que un usuario de THM UK necesite acceder a un archivo compartido en uno de los servidores de MHT ASIA. Para que esto suceda, los dominios dispuestos en árboles y bosques se unen mediante relaciones de confianza .
+
+En términos simples, tener una relación de confianza entre dominios le permite autorizar a un usuario desde el dominio. `THM UK` para acceder a recursos desde el dominio `MHT EU`.
+
+La relación de confianza más simple que se puede establecer es una **relación de confianza unidireccional**. En una confianza unidireccional, si `Domain AAA` fideicomisos `Domain BBB`, esto significa que un *usuario en BBB* puede tener autorización para acceder a *recursos en AAA*: 
+
+<div align="center">
+  <img src="/assets/images/Active-Directory/Bi-direccion.png">
+</div>
+
+La dirección de la relación de confianza unidireccional es contraria a la de la dirección de acceso.
+
+También se pueden **establecer relaciones de confianza bidireccionales** para permitir que ambos dominios autoricen mutuamente a los usuarios del otro. De forma predeterminada, unir varios dominios bajo un árbol o bosque formará una relación de confianza bidireccional.
+
+Es importante tener en cuenta que tener una relación de confianza entre dominios no otorga automáticamente acceso a todos los recursos de otros dominios. Una vez que se establece una relación de confianza, usted tiene la posibilidad de autorizar usuarios en diferentes dominios, pero depende de usted qué está realmente autorizado o no.
+
+### Responde las preguntas a continuación
+- ¿Cómo se llama un grupo de dominios de Windows que comparten el mismo espacio de nombres? `Tree`
+- ¿Qué se debe configurar entre dos dominios para que un usuario del Dominio A acceda a un recurso del Dominio B? `A Trust Relationship`
+
+## Conclusión
+En esta sala hemos mostrado los componentes y conceptos básicos relacionados con Active Directories y Dominios de Windows. Tenga en cuenta que esta sala sólo debe servir como una introducción a los conceptos básicos, ya que hay mucho más que explorar para implementar un entorno Active Directory listo para producción.
+
+Si está interesado en aprender cómo proteger una instalación de Active Directory, asegúrese de consultar la Sala de refuerzo de Active Directory (que se lanzará próximamente). Si, por otro lado, desea saber cómo los atacantes pueden aprovechar las configuraciones erróneas comunes de AD y otras técnicas de piratería de AD, el módulo [Compromering Active Directory](https://tryhackme.com/module/hacking-active-directory) es el camino a seguir.
+
+### Responde las preguntas a continuación
+- ¡Haz clic y continúa aprendiendo! 

@@ -2,7 +2,7 @@
 layout: single
 title: Introducción a la Seguridad Defensiva
 excerpt: "Presentamos la seguridad defensiva y temas relacionados, como Threat Intelligence, SOC, DFIR, Malware Analysys y SIEM"
-date: 2024-10-16
+date: 2024-10-17
 classes: wide
 header:
   teaser: /assets/images/

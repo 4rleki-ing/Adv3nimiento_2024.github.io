@@ -2,7 +2,7 @@
 layout: single
 title: Habilidades de Búsqueda
 excerpt: "Aprenda a realizar búsquedas eficientes en Internet y a utilizar motores de búsqueda especializados y documentos técnicos."
-date: 2024-10-15
+date: 2024-10-16
 classes: wide
 header:
   teaser: /assets/images/
